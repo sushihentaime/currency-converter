@@ -1,113 +1,175 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 
 export default function Home() {
+  const [baseCurrency, setBaseCurrency] = useState("");
+  const [targetCurrency, setTargetCurrency] = useState("");
+  const [amount, setAmount] = useState<number | string>(0);
+  const [rate, setRate] = useState<number | string>(0);
+  const [result, setResult] = useState<null | {
+    marketRate: number;
+    providedRate: number;
+    expectedAmount: number;
+    receivedAmount: number;
+    profitOrLoss: number;
+  }>(null);
+  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (baseCurrency === "" || targetCurrency === "" || amount === 0 || rate === 0) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const response = await fetch("/api/fetchdata");
+    if (!response.ok) {
+      alert("Failed to fetch currency data. Please try again.");
+      return;
+    }
+
+    const result = await response.json();
+    const currencyData: CurrencyData = result.data;
+
+    const baseCurrencyData = currencyData.currencies.find((currency) => currency.code === baseCurrency);
+    const targetCurrencyData = currencyData.currencies.find((currency) => currency.code === targetCurrency);
+    if (!baseCurrencyData || !targetCurrencyData) {
+      alert("Currency not found in the data. Please try again.");
+      return;
+    }
+
+    const parsedAmount = typeof amount === "string" ? parseFloat(amount) : amount;
+    const parsedRate = typeof rate === "string" ? parseFloat(rate) : rate;
+    if (isNaN(parsedAmount) || isNaN(parsedRate)) {
+      alert("Invalid amount or rate. Please try again.");
+      return;
+    }
+
+    let expectedAmount = 0;
+    let receivedAmount = 0;
+    let expectedRate = 0;
+
+    if (baseCurrency === "HKD" && targetCurrency === "HKD") {
+      alert("The base currency and target currency are the same. No conversion is needed.");
+      return;
+    } else if (baseCurrency === "HKD" && targetCurrency !== "HKD") {
+      expectedRate = 1/(targetCurrencyData.rate/100);
+      console.log(`Expected rate: ${expectedRate}`);
+      expectedAmount = parsedAmount * expectedRate;
+      receivedAmount = parsedAmount * parsedRate;
+      console.log(`Expected amount: ${expectedAmount}`);
+      console.log(`Received amount: ${receivedAmount}`);
+    } else if (baseCurrency !== "HKD" && targetCurrency === "HKD") {
+      expectedRate = baseCurrencyData.rate/100;
+      console.log(`Expected rate: ${expectedRate}`);
+      expectedAmount = parsedAmount * expectedRate;
+      receivedAmount = parsedAmount * parsedRate;
+      console.log(`Expected amount: ${expectedAmount}`);
+      console.log(`Received amount: ${receivedAmount}`);
+    } else {
+      expectedRate = (baseCurrencyData.rate / 100) / (targetCurrencyData.rate / 100)
+      console.log(`Expected rate: ${expectedRate}`);
+      expectedAmount = parsedAmount * expectedRate;
+      receivedAmount = parsedAmount * parsedRate;
+      console.log(`Expected amount: ${expectedAmount}`);
+      console.log(`Received amount: ${receivedAmount}`);
+    }
+
+    const profitOrLoss = receivedAmount - expectedAmount;
+
+    setResult({
+      marketRate: expectedRate,
+      providedRate: parsedRate,
+      expectedAmount,
+      receivedAmount,
+      profitOrLoss,
+    });
+  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+      <div className="bg-white shadow-md rounded-lg p-8 max-w-lg w-full">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Currency Converter</h1>
+      <p className="text-gray-600 text-center mb-4">
+        Currency rates tracks foreign exchange references rates published by The Hong Kong Association of Banks. For more details, visit {" "}
+        <a href="https://www.hkab.org.hk/en/rates/exchange-rates" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">HKAB</a>.</p>
+      <p className="text-gray-600 text-center mb-6">The data refreshes at around 09:00 (GMT+8) every working day.</p>
+
+      <form id="currencyForm" onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label htmlFor="baseCurrency" className="block text-gray-700 font-medium mb-2">Base Currency:</label>
+          <input type="text" id="baseCurrency" placeholder="e.g., HKD" list="currencies" value={baseCurrency} onChange={(e) => setBaseCurrency(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
         </div>
+
+        <div className="mb-4">
+          <label htmlFor="targetCurrency" className="block text-gray-700 font-medium mb-2">Target Currency:</label>
+          <input type="text" id="targetCurrency" placeholder="e.g., USD" list="currencies" value={targetCurrency} onChange={(e) => setTargetCurrency(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="amount" className="block text-gray-700 font-medium mb-2">Amount:</label>
+          <input type="number" id="amount" placeholder="e.g., 100" value={amount} onChange={(e) => { const value = e.target.value; setAmount(value === '' ? '' : parseFloat(value));}} className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
+        </div>
+
+        <div className="mb-6">
+          <label htmlFor="rate" className="block text-gray-700 font-medium mb-2">Third-Party Conversion Rate (In Target Currency):</label>
+          <input type="number" id="rate" placeholder="e.g., 7.75" value={rate} onChange={(e) => {const value = e.target.value; setRate(value === '' ? '' : parseFloat(value));}} className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required/>
+        </div>
+
+        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-200">Convert</button>
+      </form>
+
+      {result && (
+        <div className="mt-6 bg-gray-50 p-4 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Conversion Result</h2>
+          <p className="text-gray-700 mb-2">
+            <span className="font-medium">Market Conversion Rate:</span>{" "} 
+            {result.marketRate.toFixed(4)}
+          </p>
+          <p className="text-gray-700 mb-2">
+            <span className="font-medium">Provided Conversion Rate:</span>{" "}{result.providedRate.toFixed(4)}
+          </p>
+          <p className="text-gray-700 mb-2">
+            <span className="font-medium">Expected Amount:</span>{" "}{result.expectedAmount.toFixed(2)} {targetCurrency}
+          </p>
+          <p className="text-gray-700 mb-2">
+            <span className="font-medium">Received Amount:</span>{" "}{result.receivedAmount.toFixed(2)} {targetCurrency}
+          </p>
+          <p className={`text-gray-700 mb-2 ${result.profitOrLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              <span className="font-medium">Profit/Loss:</span>{" "}
+              {result.profitOrLoss.toFixed(2)} {targetCurrency}{" "}
+              ({result.profitOrLoss >= 0 ? "Profit" : "Loss"})
+            </p>
+        </div>
+      )}
+
+      <datalist id="currencies">
+        <option value="AUD"></option>
+        <option value="BND"></option>
+        <option value="CAD"></option>
+        <option value="CHF"></option>
+        <option value="DKK"></option>
+        <option value="EUR"></option>
+        <option value="HKD"></option>
+        <option value="INR"></option>
+        <option value="JPY"></option>
+        <option value="MYR"></option>
+        <option value="NOK"></option>
+        <option value="NTD"></option>
+        <option value="NZD"></option>
+        <option value="PHP"></option>
+        <option value="PKR"></option>
+        <option value="CNY"></option>
+        <option value="CNH"></option>
+        <option value="SEK"></option>
+        <option value="SGD"></option>
+        <option value="THB"></option>
+        <option value="USD"></option>
+        <option value="WON"></option>                                         
+        <option value="ZAR"></option>
+      </datalist>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </div>
   );
 }
