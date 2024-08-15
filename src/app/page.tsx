@@ -10,6 +10,7 @@ export default function Home() {
   const [amount, setAmount] = useState<number | string>(0);
   const [rate, setRate] = useState<number | string>(0);
   const [result, setResult] = useState<null | {
+    marketRateDate: string;
     marketRate: number;
     providedRate: number;
     expectedAmount: number;
@@ -81,6 +82,7 @@ export default function Home() {
     const profitOrLoss = receivedAmount - expectedAmount;
 
     setResult({
+      marketRateDate: currencyData.date,
       marketRate: expectedRate,
       providedRate: parsedRate,
       expectedAmount,
@@ -125,6 +127,10 @@ export default function Home() {
       {result && (
         <div className="mt-6 bg-gray-50 p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Conversion Result</h2>
+          <p className="text-gray-700 mb-2">
+            <span className="font-medium">Market Date:</span>{" "} 
+            {result.marketRateDate}
+          </p>
           <p className="text-gray-700 mb-2">
             <span className="font-medium">Market Conversion Rate:</span>{" "} 
             {result.marketRate.toFixed(4)}
