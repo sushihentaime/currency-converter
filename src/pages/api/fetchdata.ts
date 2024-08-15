@@ -1,10 +1,11 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import axios from "axios";
 import * as cheerio from "cheerio";
 
 export const runtime = "edge";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextRequest) {
     const url = "https://www.hkab.org.hk/en/rates/exchange-rates";
     const data: CurrencyData = {
         date: "",
@@ -70,9 +71,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             rate: 1,
         });
 
-        res.status(200).json({ data });
+        return NextResponse.json({ data });
 
     } catch (error) {
-        res.status(500).json({ error });
+        console.error("Unexpected error occurred:", error);
+        return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
     }
 }
