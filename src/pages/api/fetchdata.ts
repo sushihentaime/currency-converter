@@ -1,6 +1,5 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import axios from "axios";
 import * as cheerio from "cheerio";
 
 export const runtime = "edge";
@@ -14,9 +13,14 @@ export default async function handler(req: NextRequest) {
     };
 
     try {
-        const response = await axios.get(url);
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error("Failed to fetch data from the provided URL");
+        }
 
-        const $ = cheerio.load(response.data);
+        const html = await response.text();
+
+        const $ = cheerio.load(html);
 
         data.date = $("div.section_container_in.shorter").find("strong").text().trim();
 
