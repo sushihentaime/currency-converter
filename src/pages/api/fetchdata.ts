@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from "axios";
 import * as cheerio from "cheerio";
 
+export const runtime = "edge";
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const url = "https://www.hkab.org.hk/en/rates/exchange-rates";
     const data: CurrencyData = {
