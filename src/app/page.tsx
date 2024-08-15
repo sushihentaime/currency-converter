@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+export const runtime = "edge";
+
 export default function Home() {
   const [baseCurrency, setBaseCurrency] = useState("");
   const [targetCurrency, setTargetCurrency] = useState("");
