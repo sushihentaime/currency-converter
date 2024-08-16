@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Currency Converter Application
 
-## Getting Started
+## Overview
 
-First, run the development server:
+This application provides both an API and a frontend interface for currency conversion. The API serves currency rates, including buying, selling, and mid-market rates, sourced from the Hong Kong Association of Banks. The frontend allows users to perform currency conversions based on these rates and compare them with third-party conversion rates to evaluate potential profit or loss from the transactions. Kindly refer to [Currency Converter](https://currency-converter-3ti.pages.dev/).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **API for Currency Rates**: Retrieve buying, selling, and mid-market rates for various currencies.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend for Currency Conversion**: A user-friendly interface for converting between currencies based on the latest rates and comparing these rates with third-party rates to assess profit and loss.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Installation
 
-## Learn More
+1. **Clone the repository:**
 
-To learn more about Next.js, take a look at the following resources:
+    ```bash
+    git clone https://github.com/sushihentaime/currency-converter.git
+    cd currency-converter
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Install dependencies:**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+    ```bash
+    npm install
+    ```
 
-## Deploy on Vercel
+3. **Run the application:**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    ```bash
+    npm run dev
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+4. **Access the application:**
+
+    Open your browser and go to [http://localhost:3000](http://localhost:3000).
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License.
