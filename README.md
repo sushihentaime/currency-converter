@@ -1,5 +1,7 @@
 # Currency Converter Application
 
+![Image](image/Screenshot.jpeg)
+
 ## Overview
 
 This application provides both an API and a frontend interface for currency conversion. The API serves currency rates, including buying, selling, and mid-market rates, sourced from the Hong Kong Association of Banks. The frontend allows users to perform currency conversions based on these rates and compare them with third-party conversion rates to evaluate potential profit or loss from the transactions. Kindly refer to [Currency Converter](https://currency-converter-3ti.pages.dev/).
