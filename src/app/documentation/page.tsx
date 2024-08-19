@@ -4,28 +4,59 @@ export const runtime = "edge";
 
 const currencyRateResponse = JSON.stringify({
   "data": {
-    "date": "2024-08-16",
+    "date": "2024-08-19",
     "base": "HKD",
-    "currencies": [
-      { "code": "AUD", "name": "Australian Dollars", "sellingRate": 5.2365, "buyingTTRate": 5.076, "buyingDDRate": 5.044 },
-      { "code": "BND", "name": "Brunei Dollars", "sellingRate": 5.962, "buyingTTRate": 5.8325, "buyingDDRate": 5.8225 },
-      { "code": "CAD", "name": "Canadian Dollars", "sellingRate": 5.759, "buyingTTRate": 5.5965, "buyingDDRate": 5.5765 },
-      { "code": "CHF", "name": "Swiss Francs", "sellingRate": 9.0215, "buyingTTRate": 8.856, "buyingDDRate": 8.843 }
-    ]
+    "rates": {
+      "AUD": {
+        "selling": 5.283,
+        "buyingTT": 5.1225,
+        "buyingDD": 5.0905
+      },
+      "BND": {
+        "selling": 5.99,
+        "buyingTT": 5.8605,
+        "buyingDD": 5.8505
+      },
+      "CAD": {
+        "selling": 5.7795,
+        "buyingTT": 5.617,
+        "buyingDD": 5.597
+      }
+    }
   }
 }, null, 2);
 
 
 const midMarketRateResponse = JSON.stringify({
   "data": {
-    "date": "2024-08-16",
+    "date": "2024-08-19",
     "base": "HKD",
-    "currencies": [
-      { "code": "AUD", "name": "Australian Dollars", "rate": 5.1482 },
-      { "code": "BND", "name": "Brunei Dollars", "rate": 5.8948 },
-      { "code": "CAD", "name": "Canadian Dollars", "rate": 8.6728 },
-      { "code": "CHF", "name": "Swiss Francs", "rate": 8.9355 },
-    ]
+    "rates": {
+      "AUD": 5.19475,
+      "BND": 5.922750000000001,
+      "CAD": 5.69325,
+      "DKK": 1.1435,
+      "INR": 0.092075,
+      "JPY": 0.052675,
+      "MYR": 1.7633750000000001,
+      "NZD": 4.71525,
+      "NOK": 0.7286250000000001,
+      "PKR": 0.02725,
+      "PHP": 0.13545000000000001,
+      "SGD": 5.922750000000001,
+      "ZAR": 0.43525,
+      "SEK": 0.7455499999999999,
+      "CHF": 8.9815,
+      "THB": 0.22517500000000001,
+      "USD": 7.78875,
+      "EUR": 8.58675,
+      "WON": 0.00575,
+      "NTD": 0.24245,
+      "GBP": 10.07875,
+      "CNY": 1.08755,
+      "CNH": 1.0883500000000002,
+      "HKD": 1
+    }
   }
 }, null, 2);
 

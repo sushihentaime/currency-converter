@@ -1,6 +1,6 @@
 # Currency Converter Application
 
-![Image](image/Screenshot.jpeg)
+![Image](image/localhost_3000_.png)
 
 ## Overview
 

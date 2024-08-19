@@ -3,39 +3,35 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "edge";
 
 export default async function handler(req: NextRequest) {
-    const data: ProcessedCurrencyData = {
-        date: "",
-        base: "HKD",
-        currencies: [],
+  try {
+    const data: MidMarketData = {
+      date: "",
+      base: "",
+      rates: {},
     };
 
-    try {
-        const response = await fetch(`${req.nextUrl.origin}/api/rates`);
-        if (!response.ok) {
-            throw new Error("Failed to fetch data from the provided URL");
-        }
-
-        const result: CurrencyData = (await response.json()).data;
-        data.date = result.date;
-        data.base = result.base;
-
-        const rate = (sellingRate: number, buyingTTRate: number, buyingDDRate: number): number => {
-            const parsedRate = (sellingRate + (buyingDDRate + buyingTTRate) /2) / 2;
-            return parseFloat(parsedRate.toFixed(4));
-        }
-
-        result.currencies.forEach((currency) => {
-            data.currencies.push({
-                code: currency.code,
-                name: currency.name,
-                rate: rate(currency.sellingRate, currency.buyingTTRate, currency.buyingDDRate),
-            });
-        });
-
-        return NextResponse.json({ data });
-
-    } catch(error) {
-        console.error(error);
-        return NextResponse.json({ error: "Failed to fetch currency data. Please try again." }, { status: 500 });
+    const response = await fetch(`${req.nextUrl.origin}/api/rates`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch data from the provided URL");
     }
+
+    const result: ProcessedData = (await response.json()).data;
+
+    const rate = (sellingRate: number, buyingTTRate: number, buyingDDRate: number): number => {
+      return (sellingRate + (buyingDDRate + buyingTTRate) /2) / 2;
+    }
+
+    data.date = result.date;
+    data.base = result.base;
+
+    data.rates = Object.fromEntries(Object.entries(result.rates).map(([currencyCode, currencyRate]) => {
+      return [currencyCode, rate(currencyRate.selling, currencyRate.buyingTT, currencyRate.buyingDD)];
+    }));
+
+    return NextResponse.json({ data });
+
+  } catch(error) {
+    console.error(error);
+    return NextResponse.json({ error: "Failed to fetch currency data. Please try again." }, { status: 500 });
+  }
 }
